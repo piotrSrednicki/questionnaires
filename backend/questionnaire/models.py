@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -32,7 +32,7 @@ class Questionnaire(models.Model):
     )
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"Wiek: {self.age}, "
             f"Płeć: {self.get_sex_display()}, "

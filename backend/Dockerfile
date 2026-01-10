@@ -1,5 +1,8 @@
 FROM python:3.13-slim
 
+RUN useradd -ms /bin/bash user
+USER user
+
 WORKDIR /app
 
 COPY requirements.txt .
@@ -9,4 +12,4 @@ COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]
