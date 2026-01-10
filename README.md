@@ -1,12 +1,13 @@
 # Requirements
-- Python 3.13 - You can download it from [here](https://www.python.org/downloads/).
+- Docker and Docker-compose - You can follow the instructions from [here](https://tomerklein.dev/step-by-step-tutorial-installing-docker-and-docker-compose-on-ubuntu-a98a1b7aaed0).
 
-# Installing dependencies
-pip install -r requirements.txt
+# Versions
+- node v25 and npm v11
+- Python 3.13
 
 # Running the project
-docker-compose build && docker-compose up
+docker-compose up --build
 
 # Accessing the application
 http://localhost:8000/ - DRF Backend
-http://localhost:3000/ - React Frontend
+http://localhost:5173/ - React Frontend
