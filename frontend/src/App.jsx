@@ -1,35 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import QuestionnaireService from 'services/QuestionnaireService.js';
+import QuestionnaireListPage from 'pages/QuestionnaireListPage.jsx';
+import QuestionnaireFormPage from 'pages/QuestionnaireFormPage.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [questionnaires, setQuestionnaires] = useState([]);
+  const [globalError, setGlobalError] = useState(null);
+
+  const fetchQuestionnaires = async () => {
+    try {
+      const response = await QuestionnaireService.list();
+      const data = Array.isArray(response.data) ? response.data : response.data.results || [];
+      setQuestionnaires(data);
+    } catch {
+      setGlobalError('Nie udało się pobrać listy ankiet');
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestionnaires();
+  }, []);
+
+  const handleSubmitSuccess = () => {
+    fetchQuestionnaires();
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <div className='app-container'>
+        <h1>Ankiety</h1>
+        {globalError && <p style={{ color: 'red' }}>{globalError}</p>}
 
-export default App
+        <Routes>
+          <Route
+            path='/'
+            element={
+              <QuestionnaireListPage
+                questionnaires={questionnaires}
+                fetchQuestionnaires={fetchQuestionnaires}
+                setGlobalError={setGlobalError}
+              />
+            }
+          />
+
+          <Route
+            path='/new'
+            element={
+              <QuestionnaireFormPage
+                questionnaires={questionnaires}
+                onSubmitSuccess={handleSubmitSuccess}
+                setGlobalError={setGlobalError}
+              />
+            }
+          />
+
+          <Route
+            path='/edit/:id'
+            element={
+              <QuestionnaireFormPage
+                questionnaires={questionnaires}
+                onSubmitSuccess={handleSubmitSuccess}
+                setGlobalError={setGlobalError}
+              />
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
