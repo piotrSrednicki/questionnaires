@@ -1,7 +1,25 @@
 from django.urls import path
-from . import views
+
+from .views import (
+    QuestionnaireListCreateView,
+    QuestionnaireRandomColourView,
+    QuestionnaireRetrieveUpdateDestroyView,
+)
 
 urlpatterns = [
-    path("", views.QuestionnaireList.as_view(), name="questionnaire-list"),
-    path("<int:pk>/", views.QuestionnaireDetail.as_view(), name="questionnaire-detail"),
+    path(
+        "",
+        QuestionnaireListCreateView.as_view(),
+        name="questionnaire-list",
+    ),
+    path(
+        "<int:pk>/",
+        QuestionnaireRetrieveUpdateDestroyView.as_view(),
+        name="questionnaire-detail",
+    ),
+    path(
+        "random-colour/",
+        QuestionnaireRandomColourView.as_view(),
+        name="questionnaire-random-colour",
+    ),
 ]
