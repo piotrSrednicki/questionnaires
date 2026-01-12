@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import QuestionnaireService from '../services/QuestionnaireService.js';
+import QuestionnaireService from 'services/QuestionnaireService.js';
 import QuestionnaireList from 'components/QuestionnaireList.jsx';
 import QuestionnaireDetail from 'components/QuestionnaireDetail.jsx';
+import ErrorPopup from 'components/errorPopup/ErrorPopup.jsx';
 
 export default function QuestionnaireListPage({
   questionnaires,
@@ -11,6 +12,7 @@ export default function QuestionnaireListPage({
   setGlobalError,
 }) {
   const [detailQuestionnaire, setDetailQuestionnaire] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleDelete = async (id) => {
@@ -18,16 +20,36 @@ export default function QuestionnaireListPage({
     try {
       await QuestionnaireService.delete(id);
       if (detailQuestionnaire?.id === id) setDetailQuestionnaire(null);
-      fetchQuestionnaires();
-    } catch {
-      setGlobalError('Nie udało się usunąć ankiety');
+      await fetchQuestionnaires();
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setGlobalError('Ankieta została usunięta');
+        await fetchQuestionnaires();
+        navigate('/');
+      } else {
+        setErrorMessage('Nie udało się usunąć ankiety');
+      }
     }
   };
 
-  const handleViewDetails = (q) => {
-    const updated = questionnaires.find((item) => item.id === q.id);
-    setDetailQuestionnaire(updated || q);
+  const handleViewDetails = async (q) => {
+    try {
+      await fetchQuestionnaires();
+
+      const response = await QuestionnaireService.get(q.id);
+      setDetailQuestionnaire(response.data);
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setGlobalError('Ankieta została usunięta');
+        await fetchQuestionnaires();
+        navigate('/');
+      } else {
+        setErrorMessage('Nie udało się pobrać szczegółów ankiety');
+      }
+    }
   };
+
+  const handleEdit = (q) => navigate(`/edit/${q.id}`);
 
   return (
     <div>
@@ -40,7 +62,7 @@ export default function QuestionnaireListPage({
 
       <QuestionnaireList
         questionnaires={questionnaires}
-        onEdit={(q) => navigate(`/edit/${q.id}`)}
+        onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleViewDetails}
       />
@@ -49,8 +71,11 @@ export default function QuestionnaireListPage({
         <QuestionnaireDetail
           questionnaire={detailQuestionnaire}
           onClose={() => setDetailQuestionnaire(null)}
+          setGlobalError={setGlobalError}
         />
       )}
+
+      <ErrorPopup message={errorMessage} onClose={() => setErrorMessage(null)} />
     </div>
   );
 }

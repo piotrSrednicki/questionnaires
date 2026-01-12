@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { useParams, useNavigate } from 'react-router-dom';
 import QuestionnaireService from 'services/QuestionnaireService.js';
 import QuestionnaireForm from 'components/QuestionnaireForm.jsx';
+import ErrorPopup from 'components/errorPopup/ErrorPopup.jsx';
 
-export default function QuestionnaireFormPage({ onSubmitSuccess, questionnaires, setGlobalError }) {
+export default function QuestionnaireFormPage({ onSubmitSuccess, setGlobalError }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -14,41 +15,56 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, questionnaires,
     sex: '',
     favourite_colour: '',
   });
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    if (id) {
-      const q = questionnaires?.find((q) => q.id.toString() === id);
-      if (!q) {
-        setGlobalError('Ankieta została usunięta');
-        navigate('/');
-        return;
+    if (!id) return;
+
+    let isMounted = true;
+
+    const fetchQuestionnaire = async () => {
+      try {
+        const response = await QuestionnaireService.get(id);
+        if (!isMounted) return;
+
+        const q = response.data;
+
+        let sexValue = '';
+        if (q.sex === 'M' || q.sex === 'K') sexValue = q.sex;
+        else if (q.sex?.toLowerCase() === 'mężczyzna') sexValue = 'M';
+        else if (q.sex?.toLowerCase() === 'kobieta') sexValue = 'K';
+
+        setFormData({
+          age: q.age || '',
+          height: q.height || '',
+          sex: sexValue,
+          favourite_colour: q.favourite_colour || '',
+        });
+      } catch (err) {
+        if (err.response?.status === 404) {
+          setGlobalError('Ankieta już nie istnieje');
+          navigate('/');
+        } else {
+          setErrorMessage('Nie udało się pobrać danych ankiety');
+        }
       }
+    };
 
-      let sexValue = '';
-      if (q.sex === 'M' || q.sex === 'K') sexValue = q.sex;
-      else if (q.sex?.toLowerCase() === 'mężczyzna') sexValue = 'M';
-      else if (q.sex?.toLowerCase() === 'kobieta') sexValue = 'K';
+    fetchQuestionnaire();
 
-      setFormData({
-        age: q.age || '',
-        height: q.height || '',
-        sex: sexValue,
-        favourite_colour: q.favourite_colour || '',
-      });
-    }
-  }, [id, questionnaires, navigate, setGlobalError]);
+    return () => {
+      isMounted = false;
+    };
+  }, [id, navigate, setGlobalError]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const randomColour = async () => {
     try {
       const response = await QuestionnaireService.getRandomColour();
       setFormData((prev) => ({ ...prev, favourite_colour: response.data.favourite_colour }));
     } catch {
-      setError('Nie udało się pobrać losowego koloru');
+      setErrorMessage('Nie udało się pobrać losowego koloru');
     }
   };
 
@@ -65,12 +81,10 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, questionnaires,
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setAttemptedSubmit(true);
-    setError(null);
-    setSuccess(false);
+    setErrorMessage(null);
 
     const validationError = validate();
-    if (validationError) return setError(validationError);
+    if (validationError) return setErrorMessage(validationError);
 
     try {
       if (id) {
@@ -78,36 +92,39 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, questionnaires,
       } else {
         await QuestionnaireService.create(formData);
       }
-      setSuccess(true);
-      onSubmitSuccess();
+
+      if (onSubmitSuccess) await onSubmitSuccess();
+
       navigate('/');
     } catch (err) {
       if (err.response?.status === 404) {
-        setGlobalError('Ankieta została usunięta');
+        setGlobalError('Ankieta już nie istnieje');
+
+        if (onSubmitSuccess) await onSubmitSuccess();
+
         navigate('/');
       } else {
-        setError('Błąd podczas zapisu ankiety');
+        setErrorMessage('Błąd podczas zapisu ankiety');
       }
     }
   };
 
   return (
-    <QuestionnaireForm
-      formData={formData}
-      onChange={handleChange}
-      onRandomColour={randomColour}
-      onSubmit={handleSubmit}
-      error={error}
-      success={success}
-      editing={!!id}
-      disabledSave={!formData.favourite_colour || !formData.sex}
-      attemptedSubmit={attemptedSubmit}
-    />
+    <>
+      <QuestionnaireForm
+        formData={formData}
+        onChange={handleChange}
+        onRandomColour={randomColour}
+        onSubmit={handleSubmit}
+        editing={!!id}
+        disabledSave={!formData.favourite_colour || !formData.sex}
+      />
+      <ErrorPopup message={errorMessage} onClose={() => setErrorMessage(null)} />
+    </>
   );
 }
 
 QuestionnaireFormPage.propTypes = {
   onSubmitSuccess: PropTypes.func.isRequired,
-  questionnaires: PropTypes.array.isRequired,
   setGlobalError: PropTypes.func.isRequired,
 };
