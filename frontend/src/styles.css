@@ -7,7 +7,7 @@
 
 .questionnaire-form {
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   border: 1px solid #ccc;
   border-radius: 8px;
 }
@@ -46,10 +46,43 @@
   color: #fff;
 }
 
-.questionnaire-table tr.even {
+.questionnaire-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-.questionnaire-table tr.odd {
-  background-color: #e9e9e9;
+.questionnaire-table tbody tr:nth-child(odd) {
+  background-color: #e0e0e0;
+}
+
+.questionnaire-table tbody tr:hover {
+  background-color: #d0ebff;
+  cursor: pointer;
+}
+
+.questionnaire-detail-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.questionnaire-detail {
+  background: #fff;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.questionnaire-color-box {
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  border: 1px solid #000;
+  margin-right: 5px;
+  vertical-align: middle;
 }

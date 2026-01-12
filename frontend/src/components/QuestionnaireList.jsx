@@ -22,20 +22,15 @@ export default function QuestionnaireList({ questionnaires, onEdit, onDelete, on
         </tr>
       </thead>
       <tbody>
-        {questionnaires.map((q, idx) => (
-          <tr key={q.id} style={{ backgroundColor: idx % 2 === 0 ? '#f9f9f9' : '#e0e0e0' }}>
+        {questionnaires.map((q) => (
+          <tr key={q.id}>
             <td>{q.age}</td>
             <td>{q.sex}</td>
             <td>{q.height}</td>
             <td style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{
-                  display: 'inline-block',
-                  width: '40px',
-                  height: '20px',
-                  backgroundColor: colourMap[q.favourite_colour] || 'transparent',
-                  border: '1px solid #000',
-                }}
+                className='questionnaire-color-box'
+                style={{ backgroundColor: colourMap[q.favourite_colour] || 'transparent' }}
               />
               <span>{q.favourite_colour}</span>
             </td>
