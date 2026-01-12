@@ -5,7 +5,11 @@ import QuestionnaireService from 'services/QuestionnaireService.js';
 import QuestionnaireForm from 'components/QuestionnaireForm.jsx';
 import ErrorPopup from 'components/errorPopup/ErrorPopup.jsx';
 
-export default function QuestionnaireFormPage({ onSubmitSuccess, setGlobalError }) {
+export default function QuestionnaireFormPage({
+  onSubmitSuccess,
+  setGlobalError,
+  fetchQuestionnaires,
+}) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -99,9 +103,7 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, setGlobalError 
     } catch (err) {
       if (err.response?.status === 404) {
         setGlobalError('Ankieta już nie istnieje');
-
-        if (onSubmitSuccess) await onSubmitSuccess();
-
+        await fetchQuestionnaires();
         navigate('/');
       } else {
         setErrorMessage('Błąd podczas zapisu ankiety');
@@ -116,6 +118,10 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, setGlobalError 
         onChange={handleChange}
         onRandomColour={randomColour}
         onSubmit={handleSubmit}
+        onCancel={async () => {
+          await fetchQuestionnaires();
+          navigate('/');
+        }}
         editing={!!id}
         disabledSave={!formData.favourite_colour || !formData.sex}
       />
@@ -127,4 +133,5 @@ export default function QuestionnaireFormPage({ onSubmitSuccess, setGlobalError 
 QuestionnaireFormPage.propTypes = {
   onSubmitSuccess: PropTypes.func.isRequired,
   setGlobalError: PropTypes.func.isRequired,
+  fetchQuestionnaires: PropTypes.func.isRequired,
 };
