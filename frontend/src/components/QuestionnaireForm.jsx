@@ -6,6 +6,7 @@ export default function QuestionnaireForm({
   onChange,
   onRandomColour,
   onSubmit,
+  onCancel,
   editing,
   disabledSave,
 }) {
@@ -45,6 +46,10 @@ export default function QuestionnaireForm({
       <button type='submit' disabled={disabledSave}>
         {editing ? 'Zaktualizuj ankietę' : 'Zapisz ankietę'}
       </button>
+
+      <button type='button' style={{ marginLeft: '10px' }} onClick={onCancel}>
+        Anuluj
+      </button>
     </form>
   );
 }
@@ -59,6 +64,7 @@ QuestionnaireForm.propTypes = {
   onChange: PropTypes.func.isRequired,
   onRandomColour: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   success: PropTypes.bool,
   editing: PropTypes.bool,
   disabledSave: PropTypes.bool,
