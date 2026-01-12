@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import QuestionnaireService from 'services/QuestionnaireService.js';
 import QuestionnaireListPage from 'pages/QuestionnaireListPage.jsx';
 import QuestionnaireFormPage from 'pages/QuestionnaireFormPage.jsx';
+import ErrorPopup from 'components/errorPopup/ErrorPopup.jsx';
 
 export default function App() {
   const [questionnaires, setQuestionnaires] = useState([]);
@@ -30,7 +31,7 @@ export default function App() {
     <Router>
       <div className='app-container'>
         <h1>Ankiety</h1>
-        {globalError && <p style={{ color: 'red' }}>{globalError}</p>}
+        <ErrorPopup message={globalError} onClose={() => setGlobalError(null)} />
 
         <Routes>
           <Route
@@ -48,7 +49,6 @@ export default function App() {
             path='/new'
             element={
               <QuestionnaireFormPage
-                questionnaires={questionnaires}
                 onSubmitSuccess={handleSubmitSuccess}
                 setGlobalError={setGlobalError}
               />
@@ -59,7 +59,6 @@ export default function App() {
             path='/edit/:id'
             element={
               <QuestionnaireFormPage
-                questionnaires={questionnaires}
                 onSubmitSuccess={handleSubmitSuccess}
                 setGlobalError={setGlobalError}
               />

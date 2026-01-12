@@ -6,25 +6,12 @@ export default function QuestionnaireForm({
   onChange,
   onRandomColour,
   onSubmit,
-  error,
-  success,
   editing,
   disabledSave,
-  attemptedSubmit,
 }) {
   return (
     <form className='questionnaire-form' onSubmit={onSubmit}>
       <h2>{editing ? 'Edytuj ankietę' : 'Nowa ankieta'}</h2>
-
-      {attemptedSubmit && error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {disabledSave && !attemptedSubmit && (
-        <p style={{ color: 'gray', marginTop: '5px' }}>
-          Wybierz płeć i wylosuj ulubiony kolor, aby aktywować przycisk
-        </p>
-      )}
-
-      {success && <p style={{ color: 'green' }}>Ankieta zapisana</p>}
 
       <label>
         Wiek:
@@ -72,7 +59,6 @@ QuestionnaireForm.propTypes = {
   onChange: PropTypes.func.isRequired,
   onRandomColour: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  error: PropTypes.string,
   success: PropTypes.bool,
   editing: PropTypes.bool,
   disabledSave: PropTypes.bool,
