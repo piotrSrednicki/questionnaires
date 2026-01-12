@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import QuestionnaireService from '../services/QuestionnaireService.js';
 import QuestionnaireList from 'components/QuestionnaireList.jsx';
 import QuestionnaireDetail from 'components/QuestionnaireDetail.jsx';
-import QuestionnaireService from 'services/QuestionnaireService.js';
 
 export default function QuestionnaireListPage({
   questionnaires,
@@ -24,13 +24,19 @@ export default function QuestionnaireListPage({
     }
   };
 
-  const handleViewDetails = (q) => setDetailQuestionnaire(q);
+  const handleViewDetails = (q) => {
+    const updated = questionnaires.find((item) => item.id === q.id);
+    setDetailQuestionnaire(updated || q);
+  };
 
   return (
     <div>
-      <button style={{ marginBottom: '10px' }} onClick={() => navigate('/new')}>
-        Nowa ankieta
-      </button>
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => navigate('/new')} style={{ marginRight: '10px' }}>
+          Nowa ankieta
+        </button>
+        <button onClick={fetchQuestionnaires}>Odśwież listę</button>
+      </div>
 
       <QuestionnaireList
         questionnaires={questionnaires}
@@ -50,15 +56,7 @@ export default function QuestionnaireListPage({
 }
 
 QuestionnaireListPage.propTypes = {
-  questionnaires: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      age: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      sex: PropTypes.string,
-      favourite_colour: PropTypes.string,
-    }),
-  ).isRequired,
+  questionnaires: PropTypes.array.isRequired,
   fetchQuestionnaires: PropTypes.func.isRequired,
   setGlobalError: PropTypes.func.isRequired,
 };
