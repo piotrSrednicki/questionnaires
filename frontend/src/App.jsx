@@ -51,6 +51,7 @@ export default function App() {
               <QuestionnaireFormPage
                 onSubmitSuccess={handleSubmitSuccess}
                 setGlobalError={setGlobalError}
+                fetchQuestionnaires={fetchQuestionnaires}
               />
             }
           />
@@ -61,6 +62,7 @@ export default function App() {
               <QuestionnaireFormPage
                 onSubmitSuccess={handleSubmitSuccess}
                 setGlobalError={setGlobalError}
+                fetchQuestionnaires={fetchQuestionnaires}
               />
             }
           />
